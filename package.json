@@ -5,13 +5,25 @@
     "version": "0.0.1",
     "publisher": "hariscodes",
     "engines": {
-        "vscode": "^1.15.0"
+        "vscode": "^1.13.0"
     },
     "categories": [
         "Other"
     ],
+    "homepage": "https://github.com/hariscodes/vscode-dynamodb/blob/master/README.md",
+	"bugs": {
+		"url": "https://github.com/hariscodes/vscode-dynamodb/issues"
+	},
+	"license": "SEE LICENSE IN LICENSE.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/hariscodes/vscode-dynamodb"
+	},
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onView:dynamoExplorer",
+        "onCommand:dynamo.addServer",
+        "onCommand:dynamo.removeServer",
+        "onCommand:dynamo.connect"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -55,14 +67,14 @@
 					"group": "navigation"
 				},
 				{
-					"command": "dynamo.newScrapbook",
+					"command": "dynamo.newTable",
 					"when": "view == dynamoExplorer",
 					"group": "navigation"
 				}
 			],
 			"view/item/context": [
 				{
-					"command": "dynamo.createDatabase",
+					"command": "dynamo.createTable",
 					"when": "view == dynamoExplorer && viewItem == dynamoServer"
 				},
 				{
@@ -70,12 +82,12 @@
 					"when": "view == dynamoExplorer && viewItem == dynamoServer"
 				},
 				{
-					"command": "dynamo.connect",
-					"when": "view == dynamoExplorer && viewItem == dynamo"
+					"command": "dynamo.updateTable",
+					"when": "view == dynamoExplorer && viewItem == dynamoTable"
 				},
 				{
-					"command": "dynamo.dropDb",
-					"when": "view == dynamoExplorer && viewItem == dynamoDb"
+					"command": "dynamo.dropTable",
+					"when": "view == dynamoExplorer && viewItem == dynamoTable"
 				}
 			]
         }
