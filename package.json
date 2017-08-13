@@ -29,9 +29,10 @@
         "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
+        "aws-sdk": "^2.97.0",
         "typescript": "^2.4.2",
         "vscode": "^1.1.4",
-        "mocha": "^3.5.3",
+        "mocha": "^3.5.0",
         "@types/node": "^8.0.20",
         "@types/mocha": "^2.2.32"
     }

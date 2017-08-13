@@ -4,6 +4,7 @@ A DynamoDB Viewer in VS Code, inspired by [vscode-mongodb](https://github.com/Mi
 
 * Connect to local or AWS hosted instances of DynamoDB
 * Create and view DynamoDB databases and collections with the DynamoDB Explorer
+* Create and view information on DynamoDB Streams
 * Execute scripts and see results directly in VS Code
 * Update documents in place
 
@@ -14,7 +15,7 @@ Must have [AWS CLI](http://docs.aws.amazon.com/cli/latest/userguide/installing.h
 ## Planned Features
 
 ### DynamoDB Viewer
-### DynamoDB Document Editor
+### DynamoDB Stream Manager
 
 ## Extension Settings
 
