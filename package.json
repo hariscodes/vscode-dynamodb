@@ -1,7 +1,7 @@
 {
     "name": "vscode-dynamodb",
     "displayName": "DynamoDB",
-    "description": "Create, browse, and update local and cloud-based DynamoDb instances.",
+    "description": "Create, browse, and update local and cloud-based DynamoDB instances.",
     "version": "0.0.1",
     "publisher": "hariscodes",
     "engines": {
@@ -15,12 +15,70 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
+        "views": {
+			"explorer": [
+				{
+					"id": "dynamoExplorer",
+					"name": "dynamo",
+					"when": "config.dynamo.showExplorer == true"
+				}
+			]
+		},
         "commands": [
             {
-                "command": "extension.sayHello",
-                "title": "Hello World"
+                "category": "dynamo",
+                "command": "extension.checkConnection",
+                "title": "Check Connection"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "dynamo configuration",
+            "properties": {
+                "dynamo.showExplorer": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show or Hide the dynamo explorer"
+                }
+            }
+        },
+        "menus": {
+            "view/title": [
+				{
+					"command": "dynamo.refreshExplorer",
+					"when": "view == dynamoExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "dynamo.addServer",
+					"when": "view == dynamoExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "dynamo.newScrapbook",
+					"when": "view == dynamoExplorer",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "dynamo.createDatabase",
+					"when": "view == dynamoExplorer && viewItem == dynamoServer"
+				},
+				{
+					"command": "dynamo.removeServer",
+					"when": "view == dynamoExplorer && viewItem == dynamoServer"
+				},
+				{
+					"command": "dynamo.connect",
+					"when": "view == dynamoExplorer && viewItem == dynamo"
+				},
+				{
+					"command": "dynamo.dropDb",
+					"when": "view == dynamoExplorer && viewItem == dynamoDb"
+				}
+			]
+        }
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
