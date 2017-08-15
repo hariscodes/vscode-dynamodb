@@ -11,14 +11,14 @@
         "Other"
     ],
     "homepage": "https://github.com/hariscodes/vscode-dynamodb/blob/master/README.md",
-	"bugs": {
-		"url": "https://github.com/hariscodes/vscode-dynamodb/issues"
-	},
-	"license": "SEE LICENSE IN LICENSE.md",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/hariscodes/vscode-dynamodb"
-	},
+    "bugs": {
+        "url": "https://github.com/hariscodes/vscode-dynamodb/issues"
+    },
+    "license": "SEE LICENSE IN LICENSE.md",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/hariscodes/vscode-dynamodb"
+    },
     "activationEvents": [
         "onView:dynamoExplorer",
         "onCommand:dynamo.addServer",
@@ -28,19 +28,38 @@
     "main": "./out/src/extension",
     "contributes": {
         "views": {
-			"explorer": [
-				{
-					"id": "dynamoExplorer",
-					"name": "dynamo",
-					"when": "config.dynamo.showExplorer == true"
-				}
-			]
-		},
+            "explorer": [
+                {
+                    "id": "dynamoExplorer",
+                    "name": "dynamo",
+                    "when": "config.dynamo.showExplorer == true"
+                }
+            ]
+        },
         "commands": [
             {
-                "category": "dynamo",
-                "command": "extension.checkConnection",
-                "title": "Check Connection"
+                "category": "Dynamo",
+                "command": "extension.connect",
+                "title": "Connect"
+            },
+            {
+                "category": "Dynamo",
+                "command": "extension.addServer",
+                "title": "Add Server"
+            },
+            {
+                "category": "Dynamo",
+                "command": "extension.removeServer",
+                "title": "Remove Server"
+            },
+            {
+                "category": "Dynamo",
+                "command": "mongo.refreshExplorer",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/icons/light/refresh.svg",
+                    "dark": "resources/icons/dark/refresh.svg"
+                }
             }
         ],
         "configuration": {
@@ -51,45 +70,55 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Show or Hide the dynamo explorer"
+                },
+                "dynamo.sslEnabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable or Disable SSL on requests."
+                },
+                "dynamo.region": {
+                    "type": "string",
+                    "default": "us-east-1",
+                    "description": "If running on EC2, specify the region."
                 }
             }
         },
         "menus": {
             "view/title": [
-				{
-					"command": "dynamo.refreshExplorer",
-					"when": "view == dynamoExplorer",
-					"group": "navigation"
-				},
-				{
-					"command": "dynamo.addServer",
-					"when": "view == dynamoExplorer",
-					"group": "navigation"
-				},
-				{
-					"command": "dynamo.newTable",
-					"when": "view == dynamoExplorer",
-					"group": "navigation"
-				}
-			],
-			"view/item/context": [
-				{
-					"command": "dynamo.createTable",
-					"when": "view == dynamoExplorer && viewItem == dynamoServer"
-				},
-				{
-					"command": "dynamo.removeServer",
-					"when": "view == dynamoExplorer && viewItem == dynamoServer"
-				},
-				{
-					"command": "dynamo.updateTable",
-					"when": "view == dynamoExplorer && viewItem == dynamoTable"
-				},
-				{
-					"command": "dynamo.dropTable",
-					"when": "view == dynamoExplorer && viewItem == dynamoTable"
-				}
-			]
+                {
+                    "command": "dynamo.refreshExplorer",
+                    "when": "view == dynamoExplorer",
+                    "group": "navigation"
+                },
+                {
+                    "command": "dynamo.connect",
+                    "when": "view == dynamoExplorer",
+                    "group": "navigation"
+                },
+                {
+                    "command": "dynamo.newTable",
+                    "when": "view == dynamoExplorer",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "dynamo.newTable",
+                    "when": "view == dynamoExplorer && viewItem == dynamoServer"
+                },
+                {
+                    "command": "dynamo.disconnect",
+                    "when": "view == dynamoExplorer && viewItem == dynamoServer"
+                },
+                {
+                    "command": "dynamo.updateTable",
+                    "when": "view == dynamoExplorer && viewItem == dynamoTable"
+                },
+                {
+                    "command": "dynamo.dropTable",
+                    "when": "view == dynamoExplorer && viewItem == dynamoTable"
+                }
+            ]
         }
     },
     "scripts": {
@@ -99,11 +128,14 @@
         "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "aws-sdk": "^2.97.0",
         "typescript": "^2.4.2",
         "vscode": "^1.1.4",
         "mocha": "^3.5.0",
         "@types/node": "^8.0.20",
         "@types/mocha": "^2.2.32"
+    },
+    "dependencies": {
+        "dynogels": "^8.0.1",
+        "aws-sdk": "^2.97.0"
     }
 }

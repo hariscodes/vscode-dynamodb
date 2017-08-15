@@ -7,29 +7,27 @@ import * as vscode from 'vscode';
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "vscode-dynamodb" is now active!');
+    const explorer = new DynamoExplorer(model, context);
+    vscode.window.registerTreeDataProvider('mongoExplorer', explorer);
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with  registerCommand
-    // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.sayHello', () => {
-        let editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            return; // No open text editor
-        }
-        
-        let selection = editor.selection;
-        let text = editor.document.getText(selection);
-        
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Selected characters: ' + text.length);
-    });
-
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.connect', () => addServer()));
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.removeServer', (element: IdynamoResource) => model.remove(element)));
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.refreshExplorer', () => explorer.refresh()));
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.createTable', (server: Server) => createDatabase(server)));
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.dropTable', (element: Database) => dropDatabase(element)));
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {
 }
+
+function addServer(){
+    vscode.window.showInputBox({
+		placeHolder: 'https://dynamodb.{region}.amazonaws.com OR http://localhost:8000'
+	}).then(value => {
+		if (value) {
+			model.add(value);
+		}
+	});
+}
+
