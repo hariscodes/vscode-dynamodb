@@ -110,6 +110,16 @@ async function createTable() {
 
 }
 
-function deleteTable() {
-    vscode.window.showInformationMessage('Delete Table Placeholder')
+async function deleteTable() {
+    let _name: string;
+    await vscode.window.showInputBox({placeHolder: "Table name TO BE DELETED"})
+    .then(value => {
+        if(value) {
+            _name = value;
+        } else {
+            vscode.window.showErrorMessage('Please enter a table name.');
+        }
+    });
+
+    server.deleteTable(_name);
 }

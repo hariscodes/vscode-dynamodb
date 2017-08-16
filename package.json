@@ -22,7 +22,8 @@
     "activationEvents": [
         "onView:dynamoExplorer",
         "onCommand:dynamo.changeServer",
-        "onCommand:dynamo.createTable"
+        "onCommand:dynamo.createTable",
+        "onCommand:dynamo.deleteTable"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -58,6 +59,11 @@
 					"light": "resources/icons/light/add.svg",
 					"dark": "resources/icons/dark/add.svg"
 				}
+            },
+            {
+				"category": "Dynamo",
+				"command": "dynamo.deleteTable",
+				"title": "Delete Table"
 			}
         ],
         "configuration": {
