@@ -21,8 +21,6 @@
     },
     "activationEvents": [
         "onView:dynamoExplorer",
-        "onCommand:dynamo.addServer",
-        "onCommand:dynamo.removeServer",
         "onCommand:dynamo.connect"
     ],
     "main": "./out/src/extension",
@@ -39,22 +37,12 @@
         "commands": [
             {
                 "category": "Dynamo",
-                "command": "extension.connect",
+                "command": "dynamo.connect",
                 "title": "Connect"
             },
             {
                 "category": "Dynamo",
-                "command": "extension.addServer",
-                "title": "Add Server"
-            },
-            {
-                "category": "Dynamo",
-                "command": "extension.removeServer",
-                "title": "Remove Server"
-            },
-            {
-                "category": "Dynamo",
-                "command": "mongo.refreshExplorer",
+                "command": "dynamo.refreshExplorer",
                 "title": "Refresh",
                 "icon": {
                     "light": "resources/icons/light/refresh.svg",
@@ -68,7 +56,7 @@
             "properties": {
                 "dynamo.showExplorer": {
                     "type": "boolean",
-                    "default": false,
+                    "default": true,
                     "description": "Show or Hide the dynamo explorer"
                 },
                 "dynamo.sslEnabled": {

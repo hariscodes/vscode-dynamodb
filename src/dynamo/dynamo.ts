@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as AWS from 'aws-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 
 export interface dynamoResource extends vscode.TreeItem {
 	id: string;
@@ -76,30 +77,6 @@ export interface tableRequest {
 */
 
 
-function loadCredentials() {
-    if(fs.exists(`${process.env.HOME}/.aws/credentials.json`, (exists) => {
-        if (exists) {
-            AWS.config.loadFromPath(`${process.env.HOME}/.aws/credentials.json`);
-        }
-        else {
-            if (fs.exists(`${process.env.HOME}/.ec2/credentials.json`, (exists) => {
-                if (exists) {
-                    AWS.config.loadFromPath(`${process.env.HOME}/.ec2/credentials.json`);
-                }
-                else {
-                    vscode.window.showErrorMessage('AWS Credential file not found. Please run AWS Configure on your host instance.');
-                    return new Error('AWS Credential file not found. Please run AWS Configure on your host instance.');
-                }
-            }))
-            return;
-        }
-    }))
-    if (!AWS.config.region) {
-        AWS.config.update({region: vscode.workspace.getConfiguration('dynamo').get('region')});
-    }
-    return;
-}
-
 export class dynamoServer implements dynamoResource {
     
     readonly id: string = 'dynamoExplorer';
@@ -114,14 +91,15 @@ export class dynamoServer implements dynamoResource {
     private _onChange: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
     readonly onChange: vscode.Event<void> = this._onChange.event;
 
-    constructor() {
+    constructor(endpoint: AWS.Endpoint) {
         try {
-            loadCredentials();
+            this.loadCredentials();
         }
         catch(err) {
             return err;
         } 
         this._DynamoDB = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
+        this._DynamoDB.endpoint = endpoint;
     }
 
     async getChildren() {
@@ -144,6 +122,14 @@ export class dynamoServer implements dynamoResource {
             dark: path.join(__filename, '..', '..', '..', '..', 'media', 'dark', 'DynamoDB_dark.png'),
             light: path.join(__filename, '..', '..', '..', '..', 'media', 'light', 'DynamoDB_light.png')
         };
+    }
+
+    public setEndpoint(url: string) {
+        this._DynamoDB.endpoint = new AWS.Endpoint(url);
+    }
+
+    public getEndpoint(): string {
+        return this._DynamoDB.endpoint.host;
     }
 
     createTable(schema: AWS.DynamoDB.CreateTableInput) {
@@ -172,6 +158,34 @@ export class dynamoServer implements dynamoResource {
                 vscode.window.showInformationMessage('Table ' + data.TableDescription.TableName + ' was successfully deleted.')
             }
         });
+    }
+
+    private loadCredentials() {
+        let awsPath = os.homedir() + `/.aws/credentials`;
+        let ec2Path = os.homedir() + `/.ec2/credentials`;
+        if(fs.exists(awsPath, (exists) => {
+            if (exists) {
+                console.log('Attempting to load credentials from ' + awsPath)
+                AWS.config.loadFromPath(awsPath);
+            }
+            else {
+                if (fs.exists(ec2Path, (exists) => {
+                    if (exists) {
+                        console.log('Attempting to load credentials from ' + awsPath)
+                        AWS.config.loadFromPath(ec2Path);
+                    }
+                    else {
+                        vscode.window.showErrorMessage('AWS Credential file not found. Please run AWS Configure on your host instance.');
+                        return new Error('AWS Credential file not found. Please run AWS Configure on your host instance.');
+                    }
+                }))
+                return;
+            }
+        }))
+        if (!AWS.config.region) {
+            AWS.config.update({region: vscode.workspace.getConfiguration('dynamo').get('region')});
+        }
+        return;
     }
 
 }

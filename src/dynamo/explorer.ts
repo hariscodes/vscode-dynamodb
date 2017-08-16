@@ -17,8 +17,7 @@ export class DynamoExplorer implements TreeDataProvider<dynamoResource> {
         }
     
         getChildren(node: dynamoResource): Thenable<dynamoResource[]> {
-            //to implement
-            return;
+            return this.model.getChildren();
         }
     
         refresh(): void {
