@@ -14,69 +14,6 @@ export interface dynamoResource extends vscode.TreeItem {
 	iconPath?: { light: string, dark: string };
 }
 
-/*
-FOR REFERENCE:
-
-export interface tableRequest {
-    AttributeDefinitions: [
-        {
-            AttributeName: string; //todo: 1 - 255 character limit!
-            AttributeType: 's' | 'n' | 'b';
-        }
-    ];
-    GlobalSecondaryIndexes?: [
-        {
-            IndexName: string,
-            KeySchema: [
-                {
-                    AttributeName: string,
-                    KeyType: string
-                }
-            ],
-            Projection: {
-                NonKeyAttributes: string[],
-                ProjectionType: string
-            },
-            ProvisionedThroughput: {
-                ReadCapacityUnits: string,
-                WriteCapacityUnits: string
-            }
-        }
-    ],
-    KeySchema: [
-        {
-            AttributeName: string,
-            KeyType: 'HASH' | 'RANGE'
-        }
-    ],
-    LocalSecondaryIndexes?: [
-        {
-            IndexName: string,
-            KeySchema: [
-                {
-                    AttributeName: string,
-                    KeyType: string
-                }
-            ],
-            Projection: {
-                NonKeyAttributes: string[],
-                ProjectionType: string
-            }
-        }
-    ],
-    ProvisionedThroughput: {
-        ReadCapacityUnits: number,
-        WriteCapacityUnits: number
-    },
-    StreamSpecification?: {
-        StreamEnabled: boolean,
-        StreamViewType: string
-    }
-    TableName: string
-}
-*/
-
-
 export class dynamoServer implements dynamoResource {
     
     readonly id: string = 'dynamoExplorer';
@@ -134,8 +71,7 @@ export class dynamoServer implements dynamoResource {
 
     createTable(schema: AWS.DynamoDB.CreateTableInput) {
         /* 
-        * Script (tableName.json) vs QuickPick direct input? Table creation might be too cumbersome to do through the QuickPick box.
-        * Maybe basic table generation without script only (i.e. name, KeySchema, AttributeDefinitions, ProvisionedThroughput)
+        * GUI Driven Create table is super basic (table name, 1 attribute/type which is the HASH key, and read/write throughput options).
         */
 
         this._DynamoDB.createTable(schema, (err,opt) => {
@@ -161,35 +97,10 @@ export class dynamoServer implements dynamoResource {
     }
 
     private loadCredentials() {
-        let awsPath = os.homedir() + `/.aws/credentials`;
-        let ec2Path = os.homedir() + `/.ec2/credentials`;
-        if(fs.exists(awsPath, (exists) => {
-            if (exists) {
-                console.log('Attempting to load credentials from ' + awsPath)
-                AWS.config.loadFromPath(awsPath);
-            }
-            else {
-                if (fs.exists(ec2Path, (exists) => {
-                    if (exists) {
-                        console.log('Attempting to load credentials from ' + awsPath)
-                        AWS.config.loadFromPath(ec2Path);
-                    }
-                    else {
-                        vscode.window.showErrorMessage('AWS Credential file not found. Please run AWS Configure on your host instance.');
-                        return new Error('AWS Credential file not found. Please run AWS Configure on your host instance.');
-                    }
-                }))
-                return;
-            }
-        }))
-        if (!AWS.config.region) {
-            AWS.config.update({region: vscode.workspace.getConfiguration('dynamo').get('region')});
-        }
-        return;
+        AWS.config.credentials = new AWS.SharedIniFileCredentials();
+        AWS.config.update({region: vscode.workspace.getConfiguration('dynamo').get('region')});
     }
-
 }
-
 export class Table implements dynamoResource {
     
     readonly contextValue: string = 'dynamoTable';

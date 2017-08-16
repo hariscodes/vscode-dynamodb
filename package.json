@@ -21,7 +21,8 @@
     },
     "activationEvents": [
         "onView:dynamoExplorer",
-        "onCommand:dynamo.connect"
+        "onCommand:dynamo.changeServer",
+        "onCommand:dynamo.createTable"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -37,7 +38,7 @@
         "commands": [
             {
                 "category": "Dynamo",
-                "command": "dynamo.connect",
+                "command": "dynamo.changeServer",
                 "title": "Connect"
             },
             {
@@ -48,7 +49,16 @@
                     "light": "resources/icons/light/refresh.svg",
                     "dark": "resources/icons/dark/refresh.svg"
                 }
-            }
+            },
+            {
+				"category": "Dynamo",
+				"command": "dynamo.createTable",
+				"title": "Create Table",
+				"icon": {
+					"light": "resources/icons/light/add.svg",
+					"dark": "resources/icons/dark/add.svg"
+				}
+			}
         ],
         "configuration": {
             "type": "object",
@@ -66,7 +76,7 @@
                 },
                 "dynamo.region": {
                     "type": "string",
-                    "default": "us-east-1",
+                    "default": "us-east-2",
                     "description": "If running on EC2, specify the region."
                 }
             }
@@ -79,31 +89,23 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "dynamo.connect",
+                    "command": "dynamo.changeServer",
                     "when": "view == dynamoExplorer",
                     "group": "navigation"
                 },
                 {
-                    "command": "dynamo.newTable",
+                    "command": "dynamo.createTable",
                     "when": "view == dynamoExplorer",
                     "group": "navigation"
                 }
             ],
             "view/item/context": [
                 {
-                    "command": "dynamo.newTable",
-                    "when": "view == dynamoExplorer && viewItem == dynamoServer"
-                },
-                {
-                    "command": "dynamo.disconnect",
-                    "when": "view == dynamoExplorer && viewItem == dynamoServer"
-                },
-                {
-                    "command": "dynamo.updateTable",
+                    "command": "dynamo.deleteTable",
                     "when": "view == dynamoExplorer && viewItem == dynamoTable"
                 },
                 {
-                    "command": "dynamo.dropTable",
+                    "command": "dynamo.updateTable",
                     "when": "view == dynamoExplorer && viewItem == dynamoTable"
                 }
             ]
@@ -123,7 +125,6 @@
         "@types/mocha": "^2.2.32"
     },
     "dependencies": {
-        "dynogels": "^8.0.1",
         "aws-sdk": "^2.97.0"
     }
 }
