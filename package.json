@@ -64,7 +64,12 @@
 				"category": "Dynamo",
 				"command": "dynamo.deleteTable",
 				"title": "Delete Table"
-			}
+            },
+            {
+				"category": "Dynamo",
+				"command": "dynamo.updateTable",
+				"title": "Update Table"
+            }
         ],
         "configuration": {
             "type": "object",
@@ -72,7 +77,7 @@
             "properties": {
                 "dynamo.showExplorer": {
                     "type": "boolean",
-                    "default": true,
+                    "default": false,
                     "description": "Show or Hide the dynamo explorer"
                 },
                 "dynamo.sslEnabled": {
