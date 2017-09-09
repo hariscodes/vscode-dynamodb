@@ -1,0 +1,206 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "$id": "./src/dynamo/schemas/updateTableSchema.json",
+    "title": "DynamoDb UpdateTable Schema",
+    "description": "Validation Schema for DynamoDb UpdateTable requests",
+    "type": "object",
+    "properties": {
+        "AttributeDefinitions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "AttributeName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "AttributeType": { 
+                        "type": "string",
+                        "enum": [
+                            "S",
+                            "N",
+                            "B"
+                        ] 
+                    }
+                },
+                "required": [
+                    "AttributeName",
+                    "AttributeType"
+                ]
+            },
+            "minItems": 1
+        },
+        "GlobalSecondaryIndexUpdates": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "Create": {
+                        "IndexName": { 
+                            "type": "string",
+                            "minLength": 3,
+                            "maxLength": 255,
+                            "pattern": "[a-zA-Z0-9_.-]+"
+                        },
+                        "KeySchema": { 
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "AttributeName": { 
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 255
+                                    },
+                                    "KeyType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "HASH",
+                                            "RANGE"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "AttributeName",
+                                    "KeyType"
+                                ]
+                            },
+                            "minItems": 1,
+                            "maxItems": 2
+                        },
+                        "Projection": {
+                            "type": "object",
+                            "properties": {
+                                "NonKeyAttributes": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 255
+                                    },
+                                    "minItems": 1,
+                                    "maxItems": 20
+                                },
+                                "ProjectionType": {
+                                    "type": "string",
+                                    "enum": [
+                                        "ALL",
+                                        "KEYS_ONLY",
+                                        "INCLUDE"
+                                    ]
+                                }
+                            }
+                        },
+                        "ProvisionedThroughput": {
+                            "type": "object",
+                            "properties": {
+                                "ReadCapacityUnits": {
+                                    "type": "number",
+                                    "minimum": 1
+                                },
+                                "WriteCapacityUnits": {
+                                    "type": "number",
+                                    "minimum": 1
+                                }
+                            },
+                            "required": [
+                                "ReadCapacityUnits",
+                                "WriteCapacityUnits"
+                            ]
+                        },
+                        "required": [
+                            "IndexName",
+                            "KeySchema",
+                            "Projection",
+                            "ProvisionedThroughput"
+                        ]
+                    },
+                    "Delete": {
+                        "type": "object",
+                        "properties": {
+                            "IndexName": { 
+                                "type": "string",
+                                "minLength": 3,
+                                "maxLength": 255,
+                                "pattern": "[a-zA-Z0-9_.-]+"
+                            }
+                        },
+                        "required": [
+                            "IndexName"
+                        ]
+                    },
+                    "Update": {
+                        "type": "object",
+                        "properties": {
+                            "IndexName": { 
+                                "type": "string",
+                                "minLength": 3,
+                                "maxLength": 255,
+                                "pattern": "[a-zA-Z0-9_.-]+"
+                            },
+                            "ProvisionedThroughput": {
+                                "type": "object",
+                                "properties": {
+                                    "ReadCapacityUnits": {
+                                        "type": "number",
+                                        "minimum": 1
+                                    },
+                                    "WriteCapacityUnits": {
+                                        "type": "number",
+                                        "minimum": 1
+                                    }
+                                },
+                                "required": [
+                                    "ReadCapacityUnits",
+                                    "WriteCapacityUnits"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ProvisionedThroughput": {
+            "type": "object",
+            "properties": {
+                "ReadCapacityUnits": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "WriteCapacityUnits": {
+                    "type": "number",
+                    "minimum": 1
+                }
+            },
+            "required": [
+                "ReadCapacityUnits",
+                "WriteCapacityUnits"
+            ]
+        },
+        "StreamSpecification": {
+            "type": "object",
+            "properties": {
+                "StreamEnabled": { "type": "boolean" },
+                "StreamViewType": {
+                    "type": "string",
+                    "enum": [
+                        "NEW_IMAGE",
+                        "OLD_IMAGE",
+                        "NEW_AND_OLD_IMAGES",
+                        "KEYS_ONLY"
+                    ]
+                } 
+            } 
+        },
+         "TableName": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 255,
+            "pattern": "[a-zA-Z0-9_.-]+"
+        }
+    },
+    "required": [
+        "TableName"
+    ]
+}

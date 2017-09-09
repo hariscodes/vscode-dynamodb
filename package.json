@@ -121,7 +121,16 @@
                     "when": "view == dynamoExplorer && viewItem == dynamoTable"
                 }
             ]
+        },
+        "jsonValidation": [{
+            "fileMatch": ".dyt",
+            "url": "./schema/createTableSchema.json"
+        },
+        {
+            "fileMatch": ".dyu",
+            "url": "./schema/updateTableSchema.json"
         }
+    ]
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
