@@ -78,9 +78,8 @@ export class dynamoServer implements dynamoResource {
             if (err) {
                 vscode.window.showErrorMessage('Error creating table: '+ err.message);
                 return err.message;
-            }
-            else {
-                vscode.window.showInformationMessage('Table ' + opt.TableDescription.TableName + ' was successfully created.')
+            } else {
+                vscode.window.showInformationMessage('Table ' + opt.TableDescription.TableName + ' was successfully created.');
             }
         });
     }
@@ -89,11 +88,35 @@ export class dynamoServer implements dynamoResource {
         this._DynamoDB.deleteTable({TableName: name}, (err, data) => {
             if(err) {
                 vscode.window.showErrorMessage('Error dropping table: ' + err);
-                return; 
+                return err.message; 
             } else {
-                vscode.window.showInformationMessage('Table ' + data.TableDescription.TableName + ' was successfully deleted.')
+                vscode.window.showInformationMessage('Table ' + data.TableDescription.TableName + ' was successfully deleted.');
             }
         });
+    }
+
+    updateTable(schema: AWS.DynamoDB.UpdateTableInput) {
+        this._DynamoDB.updateTable(schema, (err,opt) => {
+            if (err) {
+                vscode.window.showErrorMessage('Error updating table: ' + err.message);
+                return err.message;
+            } else {
+                vscode.window.showInformationMessage('Table ' + opt.TableDescription.TableName + ' was successfully updated');
+            }
+        });
+    }
+
+    describeTable(name: string) {
+        return new Promise<AWS.DynamoDB.DescribeTableOutput>((resolve,reject) => {
+            this._DynamoDB.describeTable({TableName: name}, (err, data) => {
+                if(err) {
+                    vscode.window.showErrorMessage('Error describing table: ' + err);
+                    throw new Error(err.message)
+                } else {
+                   resolve(data);
+                }
+            });
+        })
     }
 
     private loadCredentials() {

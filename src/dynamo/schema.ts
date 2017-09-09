@@ -96,3 +96,41 @@ export class quickKeySchemaElement implements DynamoDB.KeySchemaElement {
         this.KeyType = type;
     }
 }
+
+export class quickStreamSpecification implements DynamoDB.StreamSpecification {
+    StreamEnabled: boolean;
+    StreamViewType?: 'NEW_IMAGE' | 'OLD_IMAGE' | 'NEW_AND_OLD_IMAGES' | 'KEYS_ONLY';
+
+    constructor(enabled: boolean, viewType?: 'NEW_IMAGE' | 'OLD_IMAGE' | 'NEW_AND_OLD_IMAGES' | 'KEYS_ONLY') {
+        this.StreamEnabled = enabled;
+        this.StreamViewType = viewType;
+    }
+}
+
+export class currentTableDesc implements DynamoDB.DescribeTableOutput {
+    Table: {
+        StreamSpecification: DynamoDB.StreamSpecification;
+        ProvisionedThroughputDescription: DynamoDB.ProvisionedThroughputDescription;
+    }
+
+    constructor(str?: quickStreamSpecification, through?: DynamoDB.ProvisionedThroughputDescription) {
+        this.Table = {StreamSpecification: str, ProvisionedThroughputDescription: through};
+    }
+}
+
+export class quickUpdateTable implements DynamoDB.UpdateTableInput {
+    TableName: string;
+    StreamSpecification?: quickStreamSpecification;
+    ProvisionedThroughput?: DynamoDB.ProvisionedThroughput;
+
+    constructor(name: string, spec?: quickStreamSpecification, throughput?: DynamoDB.ProvisionedThroughput) {
+        this.TableName = name;
+        if (spec) {
+            this.StreamSpecification = spec;
+        }
+        if (throughput) {
+            this.ProvisionedThroughput = throughput;
+        }
+    }
+    
+}

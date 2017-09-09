@@ -23,7 +23,8 @@
         "onView:dynamoExplorer",
         "onCommand:dynamo.changeServer",
         "onCommand:dynamo.createTable",
-        "onCommand:dynamo.deleteTable"
+        "onCommand:dynamo.deleteTable",
+        "onCommand:dynamo.updateTable"
     ],
     "main": "./out/src/extension",
     "contributes": {
