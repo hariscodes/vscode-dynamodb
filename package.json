@@ -22,9 +22,11 @@
     "activationEvents": [
         "onView:dynamoExplorer",
         "onCommand:dynamo.changeServer",
-        "onCommand:dynamo.createTable",
-        "onCommand:dynamo.deleteTable",
-        "onCommand:dynamo.updateTable"
+        "onCommand:dynamo.createTableQP",
+        "onCommand:dynamo.deleteTableQP",
+        "onCommand:dynamo.updateTableQP",
+        "onCommand:dynamo.createTableJSON",
+        "onCommand:dynamo.updateTableJSON"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -54,8 +56,8 @@
             },
             {
 				"category": "Dynamo",
-				"command": "dynamo.createTable",
-				"title": "Create Table",
+				"command": "dynamo.createTableQP",
+				"title": "Create Table (QuickPick)",
 				"icon": {
 					"light": "resources/icons/light/add.svg",
 					"dark": "resources/icons/dark/add.svg"
@@ -63,13 +65,23 @@
             },
             {
 				"category": "Dynamo",
-				"command": "dynamo.deleteTable",
-				"title": "Delete Table"
+				"command": "dynamo.deleteTableQP",
+				"title": "Delete Table (QuickPick)"
             },
             {
 				"category": "Dynamo",
-				"command": "dynamo.updateTable",
-				"title": "Update Table"
+				"command": "dynamo.updateTableQP",
+				"title": "Update Table (QuickPick)"
+            },
+            {
+                "category": "Dynamo",
+                "command": "dynamo.createTableJSON",
+                "title": "Create Table (File)"
+            },
+            {
+                "category": "Dynamo",
+                "command": "dynamo.updateTableJSON",
+                "title": "Update Table (File)"
             }
         ],
         "configuration": {
@@ -106,18 +118,22 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "dynamo.createTable",
+                    "command": "dynamo.createTableJSON",
                     "when": "view == dynamoExplorer",
                     "group": "navigation"
                 }
             ],
             "view/item/context": [
                 {
-                    "command": "dynamo.deleteTable",
+                    "command": "dynamo.deleteTableQP",
                     "when": "view == dynamoExplorer && viewItem == dynamoTable"
                 },
                 {
-                    "command": "dynamo.updateTable",
+                    "command": "dynamo.updateTableQP",
+                    "when": "view == dynamoExplorer && viewItem == dynamoTable"
+                },
+                {
+                    "command": "dynamo.updateTableJSON",
                     "when": "view == dynamoExplorer && viewItem == dynamoTable"
                 }
             ]

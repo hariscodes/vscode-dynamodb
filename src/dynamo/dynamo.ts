@@ -74,10 +74,16 @@ export class dynamoServer implements dynamoResource {
         * GUI Driven Create table is super basic (table name, 1 attribute/type which is the HASH key, and read/write throughput options).
         */
 
+        if (schema.hasOwnProperty("$schema")) {
+            delete schema["$schema"];
+        }
+
         this._DynamoDB.createTable(schema, (err,opt) => {
             if (err) {
                 vscode.window.showErrorMessage('Error creating table: '+ err.message);
-                return err.message;
+                console.log(schema);
+                console.log(err.message);
+                return;
             } else {
                 vscode.window.showInformationMessage('Table ' + opt.TableDescription.TableName + ' was successfully created.');
             }
@@ -88,7 +94,8 @@ export class dynamoServer implements dynamoResource {
         this._DynamoDB.deleteTable({TableName: name}, (err, data) => {
             if(err) {
                 vscode.window.showErrorMessage('Error dropping table: ' + err);
-                return err.message; 
+                console.log(err.message);
+                return;
             } else {
                 vscode.window.showInformationMessage('Table ' + data.TableDescription.TableName + ' was successfully deleted.');
             }
@@ -96,10 +103,15 @@ export class dynamoServer implements dynamoResource {
     }
 
     updateTable(schema: AWS.DynamoDB.UpdateTableInput) {
+        if (schema.hasOwnProperty("$schema")) {
+            delete schema["$schema"];
+        }
+
         this._DynamoDB.updateTable(schema, (err,opt) => {
             if (err) {
                 vscode.window.showErrorMessage('Error updating table: ' + err.message);
-                return err.message;
+                console.log(err.message);
+                return;
             } else {
                 vscode.window.showInformationMessage('Table ' + opt.TableDescription.TableName + ' was successfully updated');
             }
@@ -111,7 +123,8 @@ export class dynamoServer implements dynamoResource {
             this._DynamoDB.describeTable({TableName: name}, (err, data) => {
                 if(err) {
                     vscode.window.showErrorMessage('Error describing table: ' + err);
-                    throw new Error(err.message)
+                    console.log(err.message);
+                    return;
                 } else {
                    resolve(data);
                 }

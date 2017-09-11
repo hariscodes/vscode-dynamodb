@@ -1,6 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import { DynamoExplorer } from './dynamo/explorer';
 import { dynamoServer, Table } from './dynamo/dynamo';
 import { Endpoint, DynamoDB } from 'aws-sdk';
@@ -20,9 +21,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand('dynamo.changeServer', () => changeServer()));
     context.subscriptions.push(vscode.commands.registerCommand('dynamo.refreshExplorer', () => explorer.refresh()));
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.createTable', () => createTable()));
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.deleteTable', () => deleteTable()));
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.updateTable',() => updateTable()));
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.createTableQP', () => createTableQP()));
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.deleteTableQP', () => deleteTableQP()));
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.updateTableQP',() => updateTableQP()));
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.createTableJSON',(fileName?: string) => createTableJSON(fileName)));
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.updateTableJSON',(fileName?: string) => updateTableJSON(fileName)));
+
 }
 
 // this method is called when your extension is deactivated
@@ -41,7 +45,7 @@ async function changeServer() {
     vscode.window.setStatusBarMessage('Dynamo: ' + server.getEndpoint());
 }
 
-async function createTable() {
+async function createTableQP() {
     let _name: string;
     let _atrname: string;
     let _atrtype: "S" | "N" | "B";
@@ -111,7 +115,71 @@ async function createTable() {
 
 }
 
-async function deleteTable() {
+async function createTableJSON(fileName?: string) {
+    let _table: DynamoDB.CreateTableInput;
+    let _rawFile: string;
+
+    if (fileName) {
+        try {
+            _rawFile = fs.readFileSync(vscode.workspace.rootPath+'/'+fileName,'utf8');
+            _table = JSON.parse(_rawFile)
+        } catch (error) {
+            console.log(error);
+            vscode.window.showErrorMessage(error);
+        }
+    } else {
+        await vscode.window.showInputBox({placeHolder: "Enter Script Location"})
+        .then((value) => {
+            if(value) {
+                try {
+                    _rawFile = fs.readFileSync(vscode.workspace.rootPath+'/'+value,'utf8');
+                    _table = JSON.parse(_rawFile)
+                } catch (error) {
+                    console.log(error);
+                    vscode.window.showErrorMessage(error);
+                }
+            } else {
+                vscode.window.showErrorMessage('Please enter a valid script location');
+            }
+        });
+    }
+
+    server.createTable(_table);
+}
+
+async function updateTableJSON(fileName?: string) {
+    let _table: DynamoDB.UpdateTableInput;
+    let _rawFile: string;
+
+    if (fileName) {
+        try {
+            _rawFile = fs.readFileSync(vscode.workspace.rootPath+'/'+fileName,'utf8');
+            _table = JSON.parse(_rawFile)
+        } catch (error) {
+            console.log(error);
+            vscode.window.showErrorMessage(error);
+        }
+    } else {
+        await vscode.window.showInputBox({placeHolder: "Enter Script Location"})
+        .then((value) => {
+            if(value) {
+                try {
+                    _rawFile = fs.readFileSync(vscode.workspace.rootPath+'/'+value,'utf8');
+                    _table = JSON.parse(_rawFile)
+                } catch (error) {
+                    console.log(error);
+                    vscode.window.showErrorMessage(error);
+                }
+            } else {
+                vscode.window.showErrorMessage('Please enter a valid script location');
+            }
+        });
+    }
+
+    server.updateTable(_table);
+}
+
+async function deleteTableQP() {
     let _name: string;
     await vscode.window.showInputBox({placeHolder: "Table name TO BE DELETED"})
     .then(value => {
@@ -126,7 +194,7 @@ async function deleteTable() {
     } 
 }
 
-async function updateTable() {
+async function updateTableQP() {
     // NOTE: Streams and IOPS settings cannot be adjusted at the same time!
 
     let _name: string;
