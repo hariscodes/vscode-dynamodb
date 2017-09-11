@@ -14,7 +14,7 @@ let keyschema: quickKeySchemaElement;
 
 export function activate(context: vscode.ExtensionContext) {
 
-    server = new dynamoServer(new Endpoint('http://localhost:8001'));
+    server = new dynamoServer(new Endpoint('http://localhost:8000'));
 
     const explorer = new DynamoExplorer(server, context);
     vscode.window.registerTreeDataProvider('dynamoExplorer', explorer);

@@ -7,9 +7,15 @@
     "engines": {
         "vscode": "^1.13.0"
     },
+    "icon": "media/DynamoDB-icon.png",
     "categories": [
-        "Other"
+        "Other",
+        "Snippets"
     ],
+    "galleryBanner": {
+        "color": "#0091f8",
+        "theme": "dark"
+    },
     "homepage": "https://github.com/hariscodes/vscode-dynamodb/blob/master/README.md",
     "bugs": {
         "url": "https://github.com/hariscodes/vscode-dynamodb/issues"
