@@ -1,0 +1,106 @@
+{
+    "Create Table Base Schema": {
+        "prefix": "create",
+        "body": [
+            "\"\\$schema\": \"https://haris.codes/schemas/createTableSchema.json\"",
+            "\"TableName\": \"$1\"",
+            "\"AttributeDefinitions\": [",
+            "   {",
+            "        \"AttributeName\": \"$2\",",
+            "        \"AttributeType\": \"$3\"",
+            "    }",
+            "],",
+            "\"KeySchema\": [",
+            "    {",
+            "        \"AttributeName\": \"$2\",",
+            "        \"KeyType\": \"HASH\"",
+            "    }",  
+            "],",
+            "\"ProvisionedThroughput\": {",
+            "    \"ReadCapacityUnits\": $4,",
+            "    \"WriteCapacityUnits\": $5",
+            "}"
+        ]
+    },
+    "Update Table Provisioned Throughput": {
+        "prefix": "update",
+        "body": [
+            "\"\\$schema\": \"https://haris.codes/schemas/updateTableSchema.json\",",
+            "\"TableName\": \"$1\",",
+            "\"ProvisionedThroughput\": {",
+            "    \"ReadCapacityUnits\": $2,",
+            "    \"WriteCapacityUnits\": $3",
+            "}"
+        ]
+    },
+    "Update Table, Create Global Secondary Index": {
+        "prefix": "update",
+        "body": [
+            "\"\\$schema\": \"https://haris.codes/schemas/updateTableSchema.json\",",
+            "\"TableName\": \"$1\",",
+            "\"GlobalSecondaryIndexUpdates\": [",
+            "    {",
+            "        \"Create\": {",
+            "            \"IndexName\": \"$2\",",
+            "            \"KeySchema\": [",
+            "                {",
+            "                    \"AttributeName\": \"$3\",",
+            "                    \"KeyType\": \"$4\"",
+            "                }",
+            "            ],",
+            "            \"Projection\": {",
+            "                \"ProjectionType\": \"ALL\"",
+            "            },",
+            "            \"ProvisionedThroughput\": {",
+            "                \"ReadCapacityUnits\": $5,",
+            "                \"WriteCapacityUnits\": $6",
+            "            }",
+            "        }",
+            "    }",
+            "]"
+        ]
+    },
+    "Update Table, Delete Global Secondary Index": {
+        "prefix": "update",
+        "body":[
+            "\"\\$schema\": \"https://haris.codes/schemas/updateTableSchema.json\",",
+            "\"TableName\": \"$1\",",
+            "\"GlobalSecondaryIndexUpdates\": [",
+            "    {",
+            "        \"Delete\": {",
+            "            \"IndexName\": \"$2\"",
+            "        }",
+            "    }",
+            "]"
+        ]
+    },
+    "Update Table, Update Global Secondary Index": {
+        "prefix": "update",
+        "body":[
+            "\"\\$schema\": \"https://haris.codes/schemas/updateTableSchema.json\",",
+            "\"TableName\": \"$1\",",
+            "\"GlobalSecondaryIndexUpdates\": [",
+            "    {",
+            "        \"Update\": {",
+            "            \"IndexName\": \"$2\",",
+            "            \"ProvisionedThroughput\": {",
+            "                \"ReadCapacityUnits\": $3,",
+            "                \"WriteCapacityUnits\": $4",
+            "            }",
+            "        }",
+            "    }",
+            "]"
+        ]
+    },
+    "Update Table, Alter Stream Specification": {
+        "prefix": "update",
+        "body":[
+            "\"\\$schema\": \"https://haris.codes/schemas/updateTableSchema.json\",",
+            "\"TableName\": \"$1\",",
+            "\"StreamSpecification\": {",
+            "    \"StreamEnabled\": $2,",
+            "    \"StreamViewType\": \"$3\"",
+            "}"
+        ]
+    }
+}

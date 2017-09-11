@@ -123,12 +123,18 @@
             ]
         },
         "jsonValidation": [{
-            "fileMatch": ".dyt",
-            "url": "./schema/createTableSchema.json"
+            "fileMatch": ".dyc",
+            "url": "https://haris.codes/schemas/createTableSchema.json"
         },
         {
             "fileMatch": ".dyu",
-            "url": "./schema/updateTableSchema.json"
+            "url": "https://haris.codes/schemas/updateTableSchema.json"
+        }
+    ],
+    "snippets": [
+        {
+            "language": "json",
+            "path": "./snippets/snippets.json"
         }
     ]
     },

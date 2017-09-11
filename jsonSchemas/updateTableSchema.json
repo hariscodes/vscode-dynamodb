@@ -37,77 +37,80 @@
                 "type": "object",
                 "properties": {
                     "Create": {
-                        "IndexName": { 
-                            "type": "string",
-                            "minLength": 3,
-                            "maxLength": 255,
-                            "pattern": "[a-zA-Z0-9_.-]+"
-                        },
-                        "KeySchema": { 
-                            "type": "array",
-                            "items": {
+                        "type": "object",
+                        "properties": {
+                            "IndexName": { 
+                                "type": "string",
+                                "minLength": 3,
+                                "maxLength": 255,
+                                "pattern": "[a-zA-Z0-9_.-]+"
+                            },
+                            "KeySchema": { 
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "AttributeName": { 
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 255
+                                        },
+                                        "KeyType": {
+                                            "type": "string",
+                                            "enum": [
+                                                "HASH",
+                                                "RANGE"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "AttributeName",
+                                        "KeyType"
+                                    ]
+                                },
+                                "minItems": 1,
+                                "maxItems": 2
+                            },
+                            "Projection": {
                                 "type": "object",
                                 "properties": {
-                                    "AttributeName": { 
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "maxLength": 255
+                                    "NonKeyAttributes": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 255
+                                        },
+                                        "minItems": 1,
+                                        "maxItems": 20
                                     },
-                                    "KeyType": {
+                                    "ProjectionType": {
                                         "type": "string",
                                         "enum": [
-                                            "HASH",
-                                            "RANGE"
+                                            "ALL",
+                                            "KEYS_ONLY",
+                                            "INCLUDE"
                                         ]
+                                    }
+                                }
+                            },
+                            "ProvisionedThroughput": {
+                                "type": "object",
+                                "properties": {
+                                    "ReadCapacityUnits": {
+                                        "type": "number",
+                                        "minimum": 1
+                                    },
+                                    "WriteCapacityUnits": {
+                                        "type": "number",
+                                        "minimum": 1
                                     }
                                 },
                                 "required": [
-                                    "AttributeName",
-                                    "KeyType"
+                                    "ReadCapacityUnits",
+                                    "WriteCapacityUnits"
                                 ]
-                            },
-                            "minItems": 1,
-                            "maxItems": 2
-                        },
-                        "Projection": {
-                            "type": "object",
-                            "properties": {
-                                "NonKeyAttributes": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "maxLength": 255
-                                    },
-                                    "minItems": 1,
-                                    "maxItems": 20
-                                },
-                                "ProjectionType": {
-                                    "type": "string",
-                                    "enum": [
-                                        "ALL",
-                                        "KEYS_ONLY",
-                                        "INCLUDE"
-                                    ]
-                                }
                             }
-                        },
-                        "ProvisionedThroughput": {
-                            "type": "object",
-                            "properties": {
-                                "ReadCapacityUnits": {
-                                    "type": "number",
-                                    "minimum": 1
-                                },
-                                "WriteCapacityUnits": {
-                                    "type": "number",
-                                    "minimum": 1
-                                }
-                            },
-                            "required": [
-                                "ReadCapacityUnits",
-                                "WriteCapacityUnits"
-                            ]
                         },
                         "required": [
                             "IndexName",
