@@ -190,9 +190,9 @@ async function deleteTableQP() {
         }
     });
     if (_name) {
-        await vscode.window.showInputBox({placeHolder: "Are you sure you want to delete "+_name+"? This is IRREVERSIBLE!"})
+        await vscode.window.showQuickPick(["Yes","No"],{placeHolder: "Are you sure you want to delete "+_name+"? This is IRREVERSIBLE!"})
         .then(value => {
-            if(value === _name) {
+            if(value === "Yes") {
                 server.deleteTable(_name);
             } else {
                 vscode.window.showErrorMessage('Table name does not match.');
