@@ -1,7 +1,7 @@
 {
     "name": "vscode-dynamodb",
-    "displayName": "DynamoDB",
-    "description": "Create, browse, and update local and cloud-based DynamoDB instances.",
+    "displayName": "AWS DynamoDB",
+    "description": "Create, browse, and update local and cloud-based DynamoDB tables and indexes.",
     "version": "0.0.1",
     "publisher": "hariscodes",
     "engines": {
