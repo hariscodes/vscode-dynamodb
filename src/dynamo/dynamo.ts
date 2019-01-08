@@ -69,6 +69,10 @@ export class dynamoServer implements dynamoResource {
         return this._DynamoDB.endpoint.host;
     }
 
+    public getRegion(): string {
+        return AWS.config.region;
+    }
+
     createTable(schema: AWS.DynamoDB.CreateTableInput) {
         /* 
         * GUI Driven Create table is super basic (table name, 1 attribute/type which is the HASH key, and read/write throughput options).
@@ -132,9 +136,16 @@ export class dynamoServer implements dynamoResource {
         })
     }
 
-    private loadCredentials() {
-        AWS.config.credentials = new AWS.SharedIniFileCredentials();
+    loadCredentials() {
+        if (!vscode.workspace.getConfiguration('dynamo').get('awsProfile') || vscode.workspace.getConfiguration('dynamo').get('awsProfile') == 'default') {
+            AWS.config.credentials = new AWS.SharedIniFileCredentials();
+        }
+        else {
+            AWS.config.credentials = new AWS.SharedIniFileCredentials({profile: vscode.workspace.getConfiguration('dynamo').get('awsProfile')});
+        } 
         AWS.config.update({region: vscode.workspace.getConfiguration('dynamo').get('region')});
+
+        console.log("configured region: " + AWS.config.region);
     }
 }
 export class Table implements dynamoResource {

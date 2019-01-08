@@ -2,19 +2,24 @@
 
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as awsutil from './dynamo/awsutil'
 import { DynamoExplorer } from './dynamo/explorer';
 import { dynamoServer, Table } from './dynamo/dynamo';
 import { Endpoint, DynamoDB } from 'aws-sdk';
-import { quickTableInput, quickAttributeDefinition, quickKeySchemaElement, currentTableDesc, quickStreamSpecification, quickUpdateTable } from './dynamo/schema'
+import { quickTableInput, quickAttributeDefinition, quickKeySchemaElement, currentTableDesc, quickStreamSpecification, quickUpdateTable } from './dynamo/schema';
+import { bool } from 'aws-sdk/clients/signer';
 
 let server: dynamoServer;
 let input: quickTableInput;
 let attribute: quickAttributeDefinition;
 let keyschema: quickKeySchemaElement;
+let config = vscode.workspace.getConfiguration('dynamo');
+let profiles: string[];
 
 export function activate(context: vscode.ExtensionContext) {
 
     server = new dynamoServer(new Endpoint('http://localhost:8000'));
+    profiles = awsutil.getProfiles();
 
     const explorer = new DynamoExplorer(server, context);
     vscode.window.registerTreeDataProvider('dynamoExplorer', explorer);
@@ -26,6 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('dynamo.updateTableQP',() => updateTableQP()));
     context.subscriptions.push(vscode.commands.registerCommand('dynamo.createTableJSON',(fileName?: string) => createTableJSON(fileName)));
     context.subscriptions.push(vscode.commands.registerCommand('dynamo.updateTableJSON',(fileName?: string) => updateTableJSON(fileName)));
+    context.subscriptions.push(vscode.commands.registerCommand('dynamo.updateProfile',() => updateProfile()));
+
+    config.update('region',awsutil.getRegionFromProfile('default'));
 
 }
 
@@ -43,9 +51,35 @@ async function changeServer() {
     });
     
     vscode.window.setStatusBarMessage('Dynamo: ' + server.getEndpoint());
+    server.loadCredentials();
+}
+
+async function updateProfile() {
+    var _updated: bool = false;
+    await vscode.window.showQuickPick(profiles,{placeHolder: "AWS Credentials Profile"})
+        .then(value => {
+            _updated = true;
+            let _region = awsutil.getRegionFromProfile(value); // Note: I don't want to do this, but calling this directly in the configuration update doesn't work 😕
+            config.update('awsProfile',value).then(() => {
+                console.log("awsProfile set to "+value);
+            });
+            config.update('region',_region).then(() => {
+                console.log("region set to "+ _region);
+            });
+            let test: string = config.get('region');
+            let test2: string = config.get('awsProfile');     
+        });
+
+        if (_updated) { 
+            server.loadCredentials(); 
+        } else { 
+            console.log ("Profile Update Cancelled"); 
+        }  
 }
 
 async function createTableQP() {
+    server.loadCredentials();
+    console.log(server.getRegion());
     let _name: string;
     let _atrname: string;
     let _atrtype: "S" | "N" | "B";
@@ -116,6 +150,7 @@ async function createTableQP() {
 }
 
 async function createTableJSON(fileName?: string) {
+    server.loadCredentials();
     let _table: DynamoDB.CreateTableInput;
     let _rawFile: string;
 
@@ -180,6 +215,7 @@ async function updateTableJSON(fileName?: string) {
 }
 
 async function deleteTableQP() {
+    server.loadCredentials();
     let _name: string;
     await vscode.window.showInputBox({placeHolder: "Table name TO BE DELETED"})
     .then(value => {
@@ -202,6 +238,7 @@ async function deleteTableQP() {
 }
 
 async function updateTableQP() {
+    server.loadCredentials();
     // NOTE: Streams and IOPS settings cannot be adjusted at the same time!
 
     let _name: string;

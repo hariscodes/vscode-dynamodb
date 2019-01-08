@@ -4,8 +4,14 @@
     "description": "Create, browse, and update local and cloud-based DynamoDB tables and indexes.",
     "version": "0.0.1",
     "publisher": "hariscodes",
+    "preview": true,
+    "keywords": [
+        "AWS",
+        "json",
+        "dynamodb"
+    ],
     "engines": {
-        "vscode": "^1.13.0"
+        "vscode": "^1.20.0"
     },
     "icon": "media/DynamoDB-icon.png",
     "categories": [
@@ -32,7 +38,8 @@
         "onCommand:dynamo.deleteTableQP",
         "onCommand:dynamo.updateTableQP",
         "onCommand:dynamo.createTableJSON",
-        "onCommand:dynamo.updateTableJSON"
+        "onCommand:dynamo.updateTableJSON",
+        "onCommand:dynamo.updateProfile"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -61,23 +68,23 @@
                 }
             },
             {
-				"category": "Dynamo",
-				"command": "dynamo.createTableQP",
-				"title": "Create Table (QuickPick)",
-				"icon": {
-					"light": "resources/icons/light/add.svg",
-					"dark": "resources/icons/dark/add.svg"
-				}
+                "category": "Dynamo",
+                "command": "dynamo.createTableQP",
+                "title": "Create Table (QuickPick)",
+                "icon": {
+                    "light": "resources/icons/light/add.svg",
+                    "dark": "resources/icons/dark/add.svg"
+                }
             },
             {
-				"category": "Dynamo",
-				"command": "dynamo.deleteTableQP",
-				"title": "Delete Table (QuickPick)"
+                "category": "Dynamo",
+                "command": "dynamo.deleteTableQP",
+                "title": "Delete Table (QuickPick)"
             },
             {
-				"category": "Dynamo",
-				"command": "dynamo.updateTableQP",
-				"title": "Update Table (QuickPick)"
+                "category": "Dynamo",
+                "command": "dynamo.updateTableQP",
+                "title": "Update Table (QuickPick)"
             },
             {
                 "category": "Dynamo",
@@ -88,26 +95,36 @@
                 "category": "Dynamo",
                 "command": "dynamo.updateTableJSON",
                 "title": "Update Table (File)"
+            },
+            {
+                "category": "Dynamo",
+                "command": "dynamo.updateProfile",
+                "title": "Set AWS Profile"
             }
         ],
         "configuration": {
             "type": "object",
-            "title": "dynamo configuration",
+            "title": "DynamoDB Configuration",
             "properties": {
                 "dynamo.showExplorer": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Show or Hide the dynamo explorer"
+                    "description": "Show or Hide the dynamo explorer (NOT IMPLEMENTED)."
                 },
                 "dynamo.sslEnabled": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Enable or Disable SSL on requests."
+                    "description": "Enable or Disable SSL on requests (NOT IMPLEMENTED)."
                 },
                 "dynamo.region": {
                     "type": "string",
-                    "default": "us-east-2",
-                    "description": "If running on EC2, specify the region."
+                    "default": "",
+                    "description": "AWS region; defaults to region on default AWS CLI profile."
+                },
+                "dynamo.awsProfile": {
+                    "type": "string",
+                    "default": "default",
+                    "description": "The AWS named profile with the credentials that will be used to access resources."
                 }
             }
         },
@@ -144,21 +161,22 @@
                 }
             ]
         },
-        "jsonValidation": [{
-            "fileMatch": ".dyc",
-            "url": "https://haris.codes/schemas/createTableSchema.json"
-        },
-        {
-            "fileMatch": ".dyu",
-            "url": "https://haris.codes/schemas/updateTableSchema.json"
-        }
-    ],
-    "snippets": [
-        {
-            "language": "json",
-            "path": "./snippets/snippets.json"
-        }
-    ]
+        "jsonValidation": [
+            {
+                "fileMatch": ".dyc",
+                "url": "https://haris.codes/schemas/createTableSchema.json"
+            },
+            {
+                "fileMatch": ".dyu",
+                "url": "https://haris.codes/schemas/updateTableSchema.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "json",
+                "path": "./snippets/snippets.json"
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
@@ -167,13 +185,13 @@
         "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "typescript": "^2.4.2",
-        "vscode": "^1.1.4",
-        "mocha": "^3.5.0",
-        "@types/node": "^8.0.20",
-        "@types/mocha": "^2.2.32"
+        "@types/mocha": "^5.2.5",
+        "@types/node": "^10.12.18",
+        "mocha": "^5.2.0",
+        "typescript": "^3.2.2",
+        "vscode": "^1.1.26"
     },
     "dependencies": {
-        "aws-sdk": "^2.97.0"
+        "aws-sdk": "^2.384.0"
     }
 }
