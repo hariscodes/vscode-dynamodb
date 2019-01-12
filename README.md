@@ -1,6 +1,6 @@
 # vscode-dynamodb
 
-A DynamoDB Viewer in VS Code, inspired by [vscode-mongodb](https://github.com/Microsoft/vscode-mongodb). Currently in alpha.
+A DynamoDB Viewer in VS Code, inspired by ~~vscode-mongodb~~ [vscode-cosmosdb](https://github.com/microsoft/vscode-cosmosdb). Currently in alpha.
 
 * Connect to local or AWS-hosted instances of DynamoDB
 * Create and view DynamoDB tables with the DynamoDB Explorer
@@ -33,6 +33,7 @@ This extension can connect to and manipulate AWS-hosted DynamoDB tables, which m
 ### DynamoDB Development Tools
 * Quickly generate boilerplate DynamoDB Queries based on table structures
 * See query results directly in VS Code.
+* Quickly switch between multiple AWS named profiles
 
 ### DynamoDB Stream Manager
 * Generate boilerplate code for reading shards from streams
