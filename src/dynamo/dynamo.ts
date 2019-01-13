@@ -1,16 +1,14 @@
-import * as vscode from 'vscode';
+import { TreeItem, Event, Command, EventEmitter, TreeItemCollapsibleState, window, workspace } from 'vscode';
 import * as AWS from 'aws-sdk';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
+import { join } from 'path';
 
-export interface dynamoResource extends vscode.TreeItem {
+export interface dynamoResource extends TreeItem {
 	id: string;
 	label: string;
 	getChildren?(): Thenable<dynamoResource[]>;
-	onChange?: vscode.Event<void>;
+	onChange?: Event<void>;
 	contextValue?: string;
-	command?: vscode.Command;
+	command?: Command;
 	iconPath?: { light: string, dark: string };
 }
 
@@ -20,13 +18,13 @@ export class dynamoServer implements dynamoResource {
     readonly label: string = 'Dynamo';
     readonly type: string = 'dynamoRoot';
     readonly canHaveChildren: boolean = true;
-    readonly collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+    readonly collapsibleState = TreeItemCollapsibleState.Collapsed;
 
     private _DynamoDB: AWS.DynamoDB;
     private _tables: dynamoResource[] = [];
 
-    private _onChange: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
-    readonly onChange: vscode.Event<void> = this._onChange.event;
+    private _onChange: EventEmitter<void> = new EventEmitter<void>();
+    readonly onChange: Event<void> = this._onChange.event;
 
     constructor(endpoint: AWS.Endpoint) {
         try {
@@ -42,7 +40,7 @@ export class dynamoServer implements dynamoResource {
     async getChildren() {
         await this._DynamoDB.listTables((err,data) => {
             if (err) {
-                vscode.window.showErrorMessage('Error fetching tables: ' + err.message);
+                window.showErrorMessage('Error fetching tables: ' + err.message);
                 return err.message;
             } else {
                 this._tables.length = 0;
@@ -56,8 +54,8 @@ export class dynamoServer implements dynamoResource {
         
     get iconPath(): any {
         return {
-            dark: path.join(__filename, '..', '..', '..', '..', 'media', 'dark', 'DynamoDB_dark.png'),
-            light: path.join(__filename, '..', '..', '..', '..', 'media', 'light', 'DynamoDB_light.png')
+            dark: join(__filename, '..', '..', '..', '..', 'media', 'dark', 'DynamoDB_dark.png'),
+            light: join(__filename, '..', '..', '..', '..', 'media', 'light', 'DynamoDB_light.png')
         };
     }
 
@@ -84,12 +82,12 @@ export class dynamoServer implements dynamoResource {
 
         this._DynamoDB.createTable(schema, (err,opt) => {
             if (err) {
-                vscode.window.showErrorMessage('Error creating table: '+ err.message);
+                window.showErrorMessage('Error creating table: '+ err.message);
                 console.log(schema);
                 console.log(err.message);
                 return;
             } else {
-                vscode.window.showInformationMessage('Table ' + opt.TableDescription.TableName + ' was successfully created.');
+                window.showInformationMessage('Table ' + opt.TableDescription.TableName + ' was successfully created.');
             }
         });
     }
@@ -97,11 +95,11 @@ export class dynamoServer implements dynamoResource {
     deleteTable(name: string) {
         this._DynamoDB.deleteTable({TableName: name}, (err, data) => {
             if(err) {
-                vscode.window.showErrorMessage('Error dropping table: ' + err);
+                window.showErrorMessage('Error dropping table: ' + err);
                 console.log(err.message);
                 return;
             } else {
-                vscode.window.showInformationMessage('Table ' + data.TableDescription.TableName + ' was successfully deleted.');
+                window.showInformationMessage('Table ' + data.TableDescription.TableName + ' was successfully deleted.');
             }
         });
     }
@@ -113,11 +111,11 @@ export class dynamoServer implements dynamoResource {
 
         this._DynamoDB.updateTable(schema, (err,opt) => {
             if (err) {
-                vscode.window.showErrorMessage('Error updating table: ' + err.message);
+                window.showErrorMessage('Error updating table: ' + err.message);
                 console.log(err.message);
                 return;
             } else {
-                vscode.window.showInformationMessage('Table ' + opt.TableDescription.TableName + ' was successfully updated');
+                window.showInformationMessage('Table ' + opt.TableDescription.TableName + ' was successfully updated');
             }
         });
     }
@@ -126,7 +124,7 @@ export class dynamoServer implements dynamoResource {
         return new Promise<AWS.DynamoDB.DescribeTableOutput>((resolve,reject) => {
             this._DynamoDB.describeTable({TableName: name}, (err, data) => {
                 if(err) {
-                    vscode.window.showErrorMessage('Error describing table: ' + err);
+                    window.showErrorMessage('Error describing table: ' + err);
                     console.log(err.message);
                     return;
                 } else {
@@ -137,13 +135,13 @@ export class dynamoServer implements dynamoResource {
     }
 
     loadCredentials() {
-        if (!vscode.workspace.getConfiguration('dynamo').get('awsProfile') || vscode.workspace.getConfiguration('dynamo').get('awsProfile') == 'default') {
+        if (!workspace.getConfiguration('dynamo').get('awsProfile') || workspace.getConfiguration('dynamo').get('awsProfile') == 'default') {
             AWS.config.credentials = new AWS.SharedIniFileCredentials();
         }
         else {
-            AWS.config.credentials = new AWS.SharedIniFileCredentials({profile: vscode.workspace.getConfiguration('dynamo').get('awsProfile')});
+            AWS.config.credentials = new AWS.SharedIniFileCredentials({profile: workspace.getConfiguration('dynamo').get('awsProfile')});
         } 
-        AWS.config.update({region: vscode.workspace.getConfiguration('dynamo').get('region')});
+        AWS.config.update({region: workspace.getConfiguration('dynamo').get('region')});
 
         console.log("configured region: " + AWS.config.region);
     }
@@ -152,8 +150,8 @@ export class Table implements dynamoResource {
     
     readonly contextValue: string = 'dynamoTable';
 
-    private _onChange: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
-    readonly onChange: vscode.Event<void> = this._onChange.event;
+    private _onChange: EventEmitter<void> = new EventEmitter<void>();
+    readonly onChange: Event<void> = this._onChange.event;
 
     constructor(readonly id: string) {
     }
@@ -164,8 +162,8 @@ export class Table implements dynamoResource {
 
     get iconPath(): any {
         return {
-            light: path.join(__filename, '..', '..', '..', '..', 'media', 'dark', 'Table_dark.png'),
-            dark: path.join(__filename, '..', '..', '..', '..', 'media', 'light', 'Table_light.png')
+            light: join(__filename, '..', '..', '..', '..', 'media', 'dark', 'Table_dark.png'),
+            dark: join(__filename, '..', '..', '..', '..', 'media', 'light', 'Table_light.png')
         };
     }
 

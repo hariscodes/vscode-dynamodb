@@ -1,8 +1,8 @@
 'use strict';
 
-import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as awsutil from './dynamo/awsutil'
+import { workspace, ExtensionContext, window, commands } from 'vscode';
+import { readFileSync } from 'fs';
+import { getProfiles, getRegionFromProfile } from './dynamo/awsutil'
 import { DynamoExplorer } from './dynamo/explorer';
 import { dynamoServer, Table } from './dynamo/dynamo';
 import { Endpoint, DynamoDB } from 'aws-sdk';
@@ -13,27 +13,27 @@ let server: dynamoServer;
 let input: quickTableInput;
 let attribute: quickAttributeDefinition;
 let keyschema: quickKeySchemaElement;
-let config = vscode.workspace.getConfiguration('dynamo');
+let config = workspace.getConfiguration('dynamo');
 let profiles: string[];
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: ExtensionContext) {
 
     server = new dynamoServer(new Endpoint('http://localhost:8000'));
-    profiles = awsutil.getProfiles();
+    profiles = getProfiles();
 
     const explorer = new DynamoExplorer(server, context);
-    vscode.window.registerTreeDataProvider('dynamoExplorer', explorer);
+    window.registerTreeDataProvider('dynamoExplorer', explorer);
 
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.changeServer', () => changeServer()));
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.refreshExplorer', () => explorer.refresh()));
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.createTableQP', () => createTableQP()));
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.deleteTableQP', () => deleteTableQP()));
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.updateTableQP',() => updateTableQP()));
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.createTableJSON',(fileName?: string) => createTableJSON(fileName)));
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.updateTableJSON',(fileName?: string) => updateTableJSON(fileName)));
-    context.subscriptions.push(vscode.commands.registerCommand('dynamo.updateProfile',() => updateProfile()));
+    context.subscriptions.push(commands.registerCommand('dynamo.changeServer', () => changeServer()));
+    context.subscriptions.push(commands.registerCommand('dynamo.refreshExplorer', () => explorer.refresh()));
+    context.subscriptions.push(commands.registerCommand('dynamo.createTableQP', () => createTableQP()));
+    context.subscriptions.push(commands.registerCommand('dynamo.deleteTableQP', () => deleteTableQP()));
+    context.subscriptions.push(commands.registerCommand('dynamo.updateTableQP',() => updateTableQP()));
+    context.subscriptions.push(commands.registerCommand('dynamo.createTableJSON',(fileName?: string) => createTableJSON(fileName)));
+    context.subscriptions.push(commands.registerCommand('dynamo.updateTableJSON',(fileName?: string) => updateTableJSON(fileName)));
+    context.subscriptions.push(commands.registerCommand('dynamo.updateProfile',() => updateProfile()));
 
-    config.update('region',awsutil.getRegionFromProfile('default'));
+    config.update('region',getRegionFromProfile('default'));
 
 }
 
@@ -42,7 +42,7 @@ export function deactivate() {
 }
 
 async function changeServer() {
-    await vscode.window.showInputBox({
+    await window.showInputBox({
 		placeHolder: 'https://dynamodb.{region}.amazonaws.com OR http://localhost:8000'
 	}).then(value => {
 		if (value) {
@@ -50,16 +50,16 @@ async function changeServer() {
 		}
     });
     
-    vscode.window.setStatusBarMessage('Dynamo: ' + server.getEndpoint());
+    window.setStatusBarMessage('Dynamo: ' + server.getEndpoint());
     server.loadCredentials();
 }
 
 async function updateProfile() {
     var _updated: bool = false;
-    await vscode.window.showQuickPick(profiles,{placeHolder: "AWS Credentials Profile"})
+    await window.showQuickPick(profiles,{placeHolder: "AWS Credentials Profile"})
         .then(value => {
             _updated = true;
-            let _region = awsutil.getRegionFromProfile(value); // Note: I don't want to do this, but calling this directly in the configuration update doesn't work 😕
+            let _region = getRegionFromProfile(value); // Note: I don't want to do this, but calling this directly in the configuration update doesn't work 😕
             config.update('awsProfile',value).then(() => {
                 console.log("awsProfile set to "+value);
             });
@@ -85,23 +85,23 @@ async function createTableQP() {
     let _atrtype: "S" | "N" | "B";
     let _reads: number;
     let _writes: number;
-    await vscode.window.showInputBox({placeHolder: "Table name"})
+    await window.showInputBox({placeHolder: "Table name"})
         .then(value => {
             if(value) {
                 _name = value;
             } else {
-                vscode.window.showErrorMessage('INVALID Table name');
+                window.showErrorMessage('INVALID Table name');
             }
         });
-    await vscode.window.showInputBox({placeHolder: "Primary (Hash) Key Attribute name"})
+    await window.showInputBox({placeHolder: "Primary (Hash) Key Attribute name"})
         .then(value => {
             if(value) {
                 _atrname = value;
             } else {
-                vscode.window.showErrorMessage('INVALID Attribute name');
+                window.showErrorMessage('INVALID Attribute name');
             }
         });
-    await vscode.window.showQuickPick(["String","Number","Binary"],{placeHolder: "Primary (Hash) Key Attribute Type"})
+    await window.showQuickPick(["String","Number","Binary"],{placeHolder: "Primary (Hash) Key Attribute Type"})
         .then(value => {
             switch(value) {
                 case "String":
@@ -117,28 +117,28 @@ async function createTableQP() {
                     break;
             }
         });
-    await vscode.window.showInputBox({placeHolder: "Provisioned Read Capacity Units (Must be >= 1)"})
+    await window.showInputBox({placeHolder: "Provisioned Read Capacity Units (Must be >= 1)"})
         .then(value => {
             if (!isNaN(+value)) {
                 if (+value >= 1) {
                     _reads = +value;
                 } else {
-                    vscode.window.showErrorMessage('Provisioned Reads MUST be >=1');
+                    window.showErrorMessage('Provisioned Reads MUST be >=1');
                 }
             } else {
-                vscode.window.showErrorMessage('Provisioned Reads MUST be a numeric value');
+                window.showErrorMessage('Provisioned Reads MUST be a numeric value');
             }
         });
-    await vscode.window.showInputBox({placeHolder: "Provisioned Write Capacity Units (Must be >= 1)"})
+    await window.showInputBox({placeHolder: "Provisioned Write Capacity Units (Must be >= 1)"})
     .then(value => {
         if (!isNaN(+value)) {
             if (+value >= 1) {
                 _writes = +value;
             } else {
-                vscode.window.showErrorMessage('Provisioned Writes MUST be >=1');
+                window.showErrorMessage('Provisioned Writes MUST be >=1');
             }
         } else {
-            vscode.window.showErrorMessage('Provisioned Writes MUST be a numeric value');
+            window.showErrorMessage('Provisioned Writes MUST be a numeric value');
         }
     });
 
@@ -156,25 +156,25 @@ async function createTableJSON(fileName?: string) {
 
     if (fileName) {
         try {
-            _rawFile = fs.readFileSync(vscode.workspace.rootPath+'/'+fileName,'utf8');
+            _rawFile = readFileSync(workspace.rootPath+'/'+fileName,'utf8');
             _table = JSON.parse(_rawFile)
         } catch (error) {
             console.log(error);
-            vscode.window.showErrorMessage(error);
+            window.showErrorMessage(error);
         }
     } else {
-        await vscode.window.showInputBox({placeHolder: "Enter Script Location"})
+        await window.showInputBox({placeHolder: "Enter Script Location"})
         .then((value) => {
             if(value) {
                 try {
-                    _rawFile = fs.readFileSync(vscode.workspace.rootPath+'/'+value,'utf8');
+                    _rawFile = readFileSync(workspace.rootPath+'/'+value,'utf8');
                     _table = JSON.parse(_rawFile)
                 } catch (error) {
                     console.log(error);
-                    vscode.window.showErrorMessage(error);
+                    window.showErrorMessage(error);
                 }
             } else {
-                vscode.window.showErrorMessage('Please enter a valid script location');
+                window.showErrorMessage('Please enter a valid script location');
             }
         });
     }
@@ -188,25 +188,25 @@ async function updateTableJSON(fileName?: string) {
 
     if (fileName) {
         try {
-            _rawFile = fs.readFileSync(vscode.workspace.rootPath+'/'+fileName,'utf8');
+            _rawFile = readFileSync(workspace.rootPath+'/'+fileName,'utf8');
             _table = JSON.parse(_rawFile)
         } catch (error) {
             console.log(error);
-            vscode.window.showErrorMessage(error);
+            window.showErrorMessage(error);
         }
     } else {
-        await vscode.window.showInputBox({placeHolder: "Enter Script Location"})
+        await window.showInputBox({placeHolder: "Enter Script Location"})
         .then((value) => {
             if(value) {
                 try {
-                    _rawFile = fs.readFileSync(vscode.workspace.rootPath+'/'+value,'utf8');
+                    _rawFile = readFileSync(workspace.rootPath+'/'+value,'utf8');
                     _table = JSON.parse(_rawFile)
                 } catch (error) {
                     console.log(error);
-                    vscode.window.showErrorMessage(error);
+                    window.showErrorMessage(error);
                 }
             } else {
-                vscode.window.showErrorMessage('Please enter a valid script location');
+                window.showErrorMessage('Please enter a valid script location');
             }
         });
     }
@@ -217,21 +217,21 @@ async function updateTableJSON(fileName?: string) {
 async function deleteTableQP() {
     server.loadCredentials();
     let _name: string;
-    await vscode.window.showInputBox({placeHolder: "Table name TO BE DELETED"})
+    await window.showInputBox({placeHolder: "Table name TO BE DELETED"})
     .then(value => {
         if(value) {
             _name = value;
         } else {
-            vscode.window.showErrorMessage('Please enter a table name.');
+            window.showErrorMessage('Please enter a table name.');
         }
     });
     if (_name) {
-        await vscode.window.showQuickPick(["Yes","No"],{placeHolder: "Are you sure you want to delete "+_name+"? This is IRREVERSIBLE!"})
+        await window.showQuickPick(["Yes","No"],{placeHolder: "Are you sure you want to delete "+_name+"? This is IRREVERSIBLE!"})
         .then(value => {
             if(value === "Yes") {
                 server.deleteTable(_name);
             } else {
-                vscode.window.showErrorMessage('Table name does not match.');
+                window.showErrorMessage('Table name does not match.');
             }
         });
     } 
@@ -249,12 +249,12 @@ async function updateTableQP() {
     let _writes: number;
     let _cur: currentTableDesc = new currentTableDesc();
 
-    await vscode.window.showInputBox({placeHolder: "Table Name to be Updated"})
+    await window.showInputBox({placeHolder: "Table Name to be Updated"})
     .then(value => {
         if(value) {
             _name = value;
         } else {
-            vscode.window.showErrorMessage('Please enter a table name.');
+            window.showErrorMessage('Please enter a table name.');
         }
     });
 
@@ -264,7 +264,7 @@ async function updateTableQP() {
         _cur.Table.ProvisionedThroughputDescription = value.Table.ProvisionedThroughput;
     });
     
-    await vscode.window.showQuickPick(["Streams","Provisioned Throughput"],{placeHolder: "What do you want to update?"})
+    await window.showQuickPick(["Streams","Provisioned Throughput"],{placeHolder: "What do you want to update?"})
     .then(value => {
         switch(value) {
             case "Streams":
@@ -279,17 +279,17 @@ async function updateTableQP() {
     });
     if (toUpdate == "S") {
         if (_cur.Table.StreamSpecification.StreamEnabled == true) {
-            await vscode.window.showQuickPick(["Yes","No"],{placeHolder: "Streams are currently set to ON for " + _name + ", turn them OFF?"})
+            await window.showQuickPick(["Yes","No"],{placeHolder: "Streams are currently set to ON for " + _name + ", turn them OFF?"})
             .then(value => {
                 _str = (value == "Yes") ? false : true;
             })   
         } else {
-            await vscode.window.showQuickPick(["Yes","No"],{placeHolder: "Streams are currently set to OFF for " + _name + ", turn them ON?"})
+            await window.showQuickPick(["Yes","No"],{placeHolder: "Streams are currently set to OFF for " + _name + ", turn them ON?"})
             .then(value => {
                 _str = (value == "Yes") ? true : false;
             })
             
-            await vscode.window.showQuickPick(["New Image","Old Image", "New and Old Images", "Keys Only"],{placeHolder: "Select the type of stream to enable"})
+            await window.showQuickPick(["New Image","Old Image", "New and Old Images", "Keys Only"],{placeHolder: "Select the type of stream to enable"})
             .then(value => {
                 switch(value) {
                     case "New Image":
@@ -316,28 +316,28 @@ async function updateTableQP() {
         
     }
     if (toUpdate == "T") {
-        await vscode.window.showInputBox({placeHolder: "Provisioned Read Capacity Units (Must be >= 1)"})
+        await window.showInputBox({placeHolder: "Provisioned Read Capacity Units (Must be >= 1)"})
         .then(value => {
             if (!isNaN(+value)) {
                 if (+value >= 1) {
                     _reads = +value;
                 } else {
-                    vscode.window.showErrorMessage('Provisioned Reads MUST be >=1');
+                    window.showErrorMessage('Provisioned Reads MUST be >=1');
                 }
             } else {
-                vscode.window.showErrorMessage('Provisioned Reads MUST be a numeric value');
+                window.showErrorMessage('Provisioned Reads MUST be a numeric value');
             }
         });
-        await vscode.window.showInputBox({placeHolder: "Provisioned Write Capacity Units (Must be >= 1)"})
+        await window.showInputBox({placeHolder: "Provisioned Write Capacity Units (Must be >= 1)"})
         .then(value => {
             if (!isNaN(+value)) {
                 if (+value >= 1) {
                     _writes = +value;
                 } else {
-                    vscode.window.showErrorMessage('Provisioned Writes MUST be >=1');
+                    window.showErrorMessage('Provisioned Writes MUST be >=1');
                 }
             } else {
-                vscode.window.showErrorMessage('Provisioned Writes MUST be a numeric value');
+                window.showErrorMessage('Provisioned Writes MUST be a numeric value');
             }
         });
 
