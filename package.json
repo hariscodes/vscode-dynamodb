@@ -192,6 +192,6 @@
         "vscode": "^1.1.26"
     },
     "dependencies": {
-        "aws-sdk": "^2.384.0"
+        "aws-sdk": "^2.814.0"
     }
 }
